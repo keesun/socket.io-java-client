@@ -24,6 +24,9 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * The Class IOConnection.
@@ -59,8 +62,7 @@ class IOConnection implements IOCallback {
 	public static final String SOCKET_IO_1 = "/socket.io/1/";
 
 	/** The SSL socket factory for HTTPS connections */
-	private static SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory
-			.getDefault();
+	private static SSLContext sslContext = null;
 
 	/** All available connections. */
 	private static HashMap<String, List<IOConnection>> connections = new HashMap<String, List<IOConnection>>();
@@ -198,10 +200,19 @@ class IOConnection implements IOCallback {
 	/**
 	 * Set the socket factory used for SSL connections.
 	 * 
-	 * @param socketFactory
+	 * @param sslContext
 	 */
-	public static void setDefaultSSLSocketFactory(SSLSocketFactory socketFactory) {
-		sslSocketFactory = socketFactory;
+	public static void setSslContext(SSLContext sslContext) {
+		IOConnection.sslContext = sslContext;
+	}
+	
+	/**
+	 * Get the socket factory used for SSL connections.
+	 * 
+	 * @return socketFactory
+	 */
+	public static SSLContext getSslContext() {
+		return sslContext;
 	}
 
 	/**
@@ -283,7 +294,7 @@ class IOConnection implements IOCallback {
 			connection = url.openConnection();
 			if (connection instanceof HttpsURLConnection) {
 				((HttpsURLConnection) connection)
-						.setSSLSocketFactory(sslSocketFactory);
+						.setSSLSocketFactory(sslContext.getSocketFactory());
 			}
 			connection.setConnectTimeout(connectTimeout);
 			connection.setReadTimeout(connectTimeout);
@@ -441,7 +452,7 @@ class IOConnection implements IOCallback {
 	private synchronized void sendPlain(String text) {
 		if (getState() == STATE_READY)
 			try {
-				logger.debug("> {}", text);
+				logger.debug("> " + text);
 				transport.send(text);
 			} catch (Exception e) {
 				logger.debug("IOEx: saving");

@@ -15,7 +15,7 @@ public class MessageSender {
 	public static void main(String[] args) throws MalformedURLException, JSONException, InterruptedException {
 		int sendingMessageCount = 0;
 		SocketIO socket = new SocketIO();
-		socket.connect("http://localhost:19090/", new DeafultIoCallback(socket));
+		socket.connect("http://10.96.250.207:19191/", new DeafultIoCallback(socket));
 		while (true) {
 			JSONObject message = new JSONObject();
 			message.put("hello", "socket.io");

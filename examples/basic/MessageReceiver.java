@@ -24,14 +24,16 @@ public class MessageReceiver {
 		for(int i = 0 ; i < 10 ; i++) {
 			SocketIO socket = new SocketIO();
 			CallBack callback = new CallBack(socket, client);
-			socket.connect("http://localhost:19090/", callback);
+			socket.connect("http://10.96.250.207:19191/", callback);
 			sockets.add(socket);
 			System.out.printf("[%d] sockets tried to connect.\n", sockets.size());
-			Thread.sleep(500l);
+			if(i%100 == 0) {
+				Thread.sleep(500l);
+			}
 		}
 
 		while (true) {
-			Thread.sleep(5000l);
+			Thread.sleep(1000l);
 			System.out.printf("[%d] connections, got [%d] messages.\n", client.getConnectionCount(), client.getMessageCount());
 		}
 	}
